@@ -1,51 +1,122 @@
-import fetch from "node-fetch"; // Import fetch for server-side calls
+//index.js file
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// In this section, we set the user authentication, user and app ID, model details, and the URL
+// of the image we want as an input. Change these strings to run your own example.
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Your PAT (Personal Access Token) can be found in the Account's Security section
+const PAT = "60df1f2fc09b470da2117dde445f6abf";
+// Specify the correct user_id/app_id pairings
+// Since you're making inferences outside your app's scope
+const USER_ID = "clarifai";
+const APP_ID = "main";
+// Change these to whatever model and image URL you want to use
+const MODEL_ID = "face-detection";
+const MODEL_VERSION_ID = "6dc7e46bc9124c5c8824be4822abe105";
+
+// To use a local file, assign the location variable
+// const IMAGE_FILE_LOCATION = 'YOUR_IMAGE_FILE_LOCATION_HERE'
+
+///////////////////////////////////////////////////////////////////////////////////
+// YOU DO NOT NEED TO CHANGE ANYTHING BELOW THIS LINE TO RUN THIS EXAMPLE
+///////////////////////////////////////////////////////////////////////////////////
+
+import { ClarifaiStub, grpc } from "clarifai-nodejs-grpc";
+import { response } from "express";
+
+const stub = ClarifaiStub.grpc();
+
+// This will be used by every Clarifai endpoint call
+const metadata = new grpc.Metadata();
+metadata.set("authorization", "Key " + PAT);
+
+// To use a local text file, uncomment the following lines
+// const fs = require("fs");
+// const imageBytes = fs.readFileSync(IMAGE_FILE_LOCATION);
 export const handleApiCall = (req, res) => {
-  const MODEL_ID = "face-detection";
-  const PAT = "60df1f2fc09b470da2117dde445f6abf";
-  const USER_ID = "af8w21gvcx87";
-  const APP_ID = "image-recognition";
-
-  const { input } = req.body; // Receive the image URL from the client
-
-  const raw = JSON.stringify({
-    user_app_id: {
-      user_id: USER_ID,
-      app_id: APP_ID,
-    },
-    inputs: [
-      {
-        data: {
-          image: {
-            url: input,
+  stub.PostModelOutputs(
+    {
+      user_app_id: {
+        user_id: USER_ID,
+        app_id: APP_ID,
+      },
+      model_id: MODEL_ID,
+      version_id: MODEL_VERSION_ID, // This is optional. Defaults to the latest model version
+      inputs: [
+        {
+          data: {
+            image: {
+              url: req.body.input,
+              // base64: imageBytes,
+              allow_duplicate_url: true,
+            },
           },
         },
-      },
-    ],
-  });
-
-  const requestOptions = {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      Authorization: "Key " + PAT,
+      ],
     },
-    body: raw,
-  };
-
-  fetch(
-    `https://api.clarifai.com/v2/models/${MODEL_ID}/outputs`,
-    requestOptions
-  )
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Failed to fetch from Clarifai API");
+    metadata,
+    (err, response) => {
+      if (err) {
+        throw new Error(err);
       }
-      return response.json();
-    })
-    .then((data) => res.json(data)) // Send the Clarifai response to the front-end
-    .catch((err) => res.status(400).json("Unable to work with API"));
+
+      if (response.status.code !== 10000) {
+        throw new Error(
+          "Post model outputs failed, status: " + response.status.description
+        );
+      }
+
+      const regions = response.outputs[0].data.regions;
+      const boundingBoxes = regions.map((region) => {
+        const boundingBox = region.region_info.bounding_box;
+        return {
+          leftCol: boundingBox.left_col,
+          topRow: boundingBox.top_row,
+          rightCol: boundingBox.right_col,
+          bottomRow: boundingBox.bottom_row,
+        };
+      });
+      console.log("bounding-box", boundingBoxes);
+
+      // Send bounding box data back to the front-end
+      res.json(boundingBoxes);
+    }
+  );
 };
+
+// export const handleApiCall = (req, res) => {
+//   stub.PostModelOutputs(
+//     {
+//       // This is the model ID of a publicly available General model. You may use any other public or custom model ID.
+//       model_id: "a403429f2ddf4b49b307e318f00e528b",
+//       inputs: [{ data: { image: { url: req.body.input } } }],
+//     },
+//     metadata,
+//     (err, response) => {
+//       if (err) {
+//         console.log("Error: " + err);
+//         return;
+//       }
+
+//       if (response.status.code !== 10000) {
+//         console.log(
+//           "Received failed status: " +
+//             response.status.description +
+//             "\n" +
+//             response.status.details
+//         );
+//         return;
+//       }
+
+//       console.log("Predicted concepts, with confidence values:");
+//       for (const c of response.outputs[0].data.concepts) {
+//         console.log(c.name + ": " + c.value);
+//       }
+//       return res.json(response);
+//     }
+//   );
+// };
 
 export const handleImage = (req, res, db) => {
   const { id } = req.body;
