@@ -2,7 +2,7 @@ import express from "express";
 import bcrypt from "bcrypt";
 import cors from "cors";
 import dotenv from "dotenv";
-dotenv.config();
+import knex from "knex";
 
 import handleRegister from "./controllers/register.js";
 import handleSignin from "./controllers/signin.js";
@@ -42,21 +42,21 @@ app.get("/", async (req, res) => {
 });
 
 app.post("/signin", (req, res) => {
-  handleSignin(req, res, client, bcrypt);
+  handleSignin(req, res, db, bcrypt);
 });
 
 app.post("/register", (req, res) => {
-  handleRegister(req, res, client, bcrypt);
+  handleRegister(req, res, db, bcrypt);
 });
 
 app.get("/profile/:id", (req, res) => {
-  handleProfile(req, res, client);
+  handleProfile(req, res, db);
 });
 
 app.post("/imageurl", (req, res) => handleApiCall(req, res));
 
 app.put("/image", (req, res) => {
-  handleImage(req, res, client);
+  handleImage(req, res, db);
 });
 
 // Server start
