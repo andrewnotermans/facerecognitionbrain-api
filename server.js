@@ -1,8 +1,8 @@
-// server.js
 import express from "express";
 import bcrypt from "bcrypt";
 import cors from "cors";
-//import knex from "knex";
+import { Client } from "pg";
+
 import handleRegister from "./controllers/register.js";
 import handleSignin from "./controllers/signin.js";
 import handleProfile from "./controllers/profile.js";
@@ -10,52 +10,30 @@ import { handleApiCall, handleImage } from "./controllers/image.js";
 
 const saltRounds = 10;
 
-import { Client } from "pg";
-
+// Initialize the database client
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
   ssl: {
-    rejectUnauthorized: false,
+    rejectUnauthorized: false, // Needed for Heroku's managed PostgreSQL
   },
 });
 
-client.connect();
-
-const db = client.query("SELECT * FROM users;", (err, res) => {
-  if (err) throw err;
-  for (let row of res.rows) {
-    console.log(JSON.stringify(row));
-  }
-  client.end();
-});
 client
   .connect()
   .then(() => console.log("Connected to the database"))
   .catch((err) => console.error("Database connection error:", err));
-// db.select("*")
-//   .from("users")
-//   .then((data) => {
-//     console.log("Database connection successful:", data);
-//   })
-//   .catch((err) => console.error("Database connection error:", err));
 
 // Express app setup
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-// const corsOptions = {
-//   origin: "*", // Allow requests from the frontend
-//   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-//   credentials: true,
-// };
 app.use(cors());
-
 app.use(express.json());
 
 // Routes
 app.get("/", (req, res) => {
-  res.send("success");
+  res.send("Server is running!");
 });
 
 app.post("/signin", (req, res) => {
@@ -80,5 +58,3 @@ app.put("/image", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-console.log(process.env);
