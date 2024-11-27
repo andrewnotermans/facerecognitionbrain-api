@@ -14,7 +14,7 @@ console.log("Database URL:", process.env.DATABASE_URL);
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
   ssl: {
-    rejectUnauthorized: false, // Needed for Heroku's managed PostgreSQL
+    rejectUnauthorized: true, // Needed for Heroku's managed PostgreSQL
   },
 });
 
