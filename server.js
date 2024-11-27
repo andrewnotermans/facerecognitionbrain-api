@@ -28,7 +28,10 @@ const db = client.query("SELECT * FROM users;", (err, res) => {
   }
   client.end();
 });
-
+client
+  .connect()
+  .then(() => console.log("Connected to the database"))
+  .catch((err) => console.error("Database connection error:", err));
 // db.select("*")
 //   .from("users")
 //   .then((data) => {
@@ -56,21 +59,21 @@ app.get("/", (req, res) => {
 });
 
 app.post("/signin", (req, res) => {
-  handleSignin(req, res, db, bcrypt);
+  handleSignin(req, res, client, bcrypt);
 });
 
 app.post("/register", (req, res) => {
-  handleRegister(req, res, db, bcrypt);
+  handleRegister(req, res, client, bcrypt);
 });
 
 app.get("/profile/:id", (req, res) => {
-  handleProfile(req, res, db);
+  handleProfile(req, res, client);
 });
 
 app.post("/imageurl", (req, res) => handleApiCall(req, res));
 
 app.put("/image", (req, res) => {
-  handleImage(req, res, db);
+  handleImage(req, res, client);
 });
 
 // Server start
