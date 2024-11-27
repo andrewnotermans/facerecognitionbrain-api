@@ -31,7 +31,7 @@ db.select("*")
 
 // Express app setup
 const app = express();
-const port = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 const corsOptions = {
@@ -72,6 +72,8 @@ app.put("/image", (req, res) => {
 });
 
 // Server start
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
+
+console.log(process.env);
