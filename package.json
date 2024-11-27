@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "type": "module",
-  "proxy": "http://localhost:3001",
   "scripts": {
-    "start": "server.js"
+    "start": "serve -s build",
   },
   "repository": {
     "type": "git",
@@ -27,7 +26,8 @@
     "cors": "^2.8.5",
     "express": "^4.21.1",
     "knex": "^3.1.0",
-    "pg": "^8.13.1"
+    "pg": "^8.13.1",
+    "serve": "^14.2.4"
   },
   "devDependencies": {
     "@types/dotenv": "^6.1.1"
