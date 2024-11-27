@@ -10,7 +10,7 @@ import { handleApiCall, handleImage } from "./controllers/image.js";
 
 const saltRounds = 10;
 
-const { Client } = require("pg");
+import { Client } from "pg";
 
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
