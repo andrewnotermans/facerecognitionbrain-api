@@ -14,10 +14,9 @@ const saltRounds = 10;
 const db = knex({
   client: "pg",
   connection: {
-    host: "127.0.0.1",
-    port: 5432,
+    host: "postgresql-contoured-84950",
     user: "postgres",
-    password: "test",
+    password: "",
     database: "smart-brain",
   },
 });
@@ -44,13 +43,8 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 // Routes
-app.get("/", async (req, res) => {
-  try {
-    const users = await db.select("*").from("users");
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ error: "Unable to fetch users" });
-  }
+app.get("/", (req, res) => {
+  res.send(database.users);
 });
 
 app.post("/signin", (req, res) => {
