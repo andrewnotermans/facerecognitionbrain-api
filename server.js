@@ -2,6 +2,8 @@ import express from "express";
 import bcrypt from "bcrypt";
 import cors from "cors";
 import { Client } from "pg";
+import dotenv from "dotenv";
+dotenv.config();
 
 import handleRegister from "./controllers/register.js";
 import handleSignin from "./controllers/signin.js";
