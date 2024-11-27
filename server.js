@@ -1,7 +1,6 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import cors from "cors";
-import { Client } from "pg";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -11,21 +10,18 @@ import handleProfile from "./controllers/profile.js";
 import { handleApiCall, handleImage } from "./controllers/image.js";
 
 const saltRounds = 10;
-console.log("Database URL:", process.env.DATABASE_URL);
-// Initialize the database client
-const client = new Client({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: true, // Needed for Heroku's managed PostgreSQL
+
+// Database setup
+const db = knex({
+  client: "pg",
+  connection: {
+    host: "127.0.0.1",
+    port: 5432,
+    user: "postgres",
+    password: "test",
+    database: "smart-brain",
   },
 });
-
-client
-  .connect()
-  .then(() => console.log("Connected to the database"))
-  .catch((err) => console.error("Database connection error:", err));
-
-console.log("Database URL:", process.env.DATABASE_URL);
 
 // Express app setup
 const app = express();
@@ -36,8 +32,13 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.get("/", (req, res) => {
-  res.send("Server is running!");
+app.get("/", async (req, res) => {
+  try {
+    const users = await db.select("*").from("users");
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: "Unable to fetch users" });
+  }
 });
 
 app.post("/signin", (req, res) => {
