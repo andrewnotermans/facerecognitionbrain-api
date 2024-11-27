@@ -25,7 +25,7 @@ const db = knex({
 
 // Express app setup
 const app = express();
-const PORT = process.env.PORT || 3000;
+const port = 3000;
 
 // Middleware
 app.use(cors());
@@ -60,6 +60,6 @@ app.put("/image", (req, res) => {
 });
 
 // Server start
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
