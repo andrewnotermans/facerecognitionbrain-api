@@ -2,7 +2,7 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import cors from "cors";
-import knex from "knex";
+//import knex from "knex";
 import handleRegister from "./controllers/register.js";
 import handleSignin from "./controllers/signin.js";
 import handleProfile from "./controllers/profile.js";
@@ -29,31 +29,31 @@ const db = client.query("SELECT * FROM users", (err, res) => {
   client.end();
 });
 
-db.select("*")
-  .from("users")
-  .then((data) => {
-    console.log("Database connection successful:", data);
-  })
-  .catch((err) => console.error("Database connection error:", err));
+// db.select("*")
+//   .from("users")
+//   .then((data) => {
+//     console.log("Database connection successful:", data);
+//   })
+//   .catch((err) => console.error("Database connection error:", err));
 
 // Express app setup
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-const corsOptions = {
-  origin: "*", // Allow requests from the frontend
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true,
-};
-app.use(cors(corsOptions));
+// const corsOptions = {
+//   origin: "*", // Allow requests from the frontend
+//   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+//   credentials: true,
+// };
+app.use(cors());
 
 app.use(express.json());
 
 // Routes
-// app.get("/", (req, res) => {
-//   res.send("success");
-// });
+app.get("/", (req, res) => {
+  res.send("success");
+});
 
 app.post("/signin", (req, res) => {
   handleSignin(req, res, db, bcrypt);
