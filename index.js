@@ -16,11 +16,11 @@ dotenv.config();
 const db = knex({
   client: "pg",
   connection: {
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+    host: "dpg-ctbl26lumphs739im31g-a",
+    port: 5432,
+    user: "smart_brain_frdd_user",
+    password: "ulf1kLlzDacceoIkvymZYsc3bsA2pQLP",
+    database: "smart_brain_frdd",
   },
 });
 
